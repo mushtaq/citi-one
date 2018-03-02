@@ -5,7 +5,20 @@ trait Ord[T] {
 }
 
 object Ord {
-  val intOrd: Ord[Int] = new Ord[Int] {
-    override def lt(a: Int, b: Int): Boolean = a < b
+
+  def apply[T](implicit x: Ord[T]): Ord[T] = x
+
+  implicit val intOrd: Ord[Int] = (a: Int, b: Int) => a < b
+
+  implicit val strOrd: Ord[String] = (a: String, b: String) => a < b
+
+  implicit def optOrd[T: Ord]: Ord[Option[T]] = new Ord[Option[T]] {
+    override def lt(a: Option[T], b: Option[T]): Boolean = (a, b) match {
+      case (Some(x), Some(y)) => Ord[T].lt(x, y)
+      case (None, _)          => true
+      case (_, None)          => false
+    }
   }
+
+
 }
